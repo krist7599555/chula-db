@@ -1,17 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>intania-db</title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but intania-db doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chula Database</title>
+  
+  <!-- IOS -->
+  <link rel="apple-touch-icon" href="img/icons/cu-logo-red.png">
+  <!-- <link rel="apple-touch-startup-image" href="img/splash/launch-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="img/splash/launch-750x1294.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"> -->
+  <link rel="apple-touch-startup-image" href="img/splash/chula-iphone-splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <!-- <link rel="apple-touch-startup-image" href="img/splash/launch-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="img/splash/launch-1536x2048.png" media="(min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="img/splash/launch-1668x2224.png" media="(min-device-width: 834px) and (max-device-width: 834px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)">
+  <link rel="apple-touch-startup-image" href="img/splash/launch-2048x2732.png" media="(min-device-width: 1024px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2) and (orientation: portrait)"> -->
+  <!-- iPhone X (1125px x 2436px) -->
+  <!-- iPhone 8, 7, 6s, 6 (750px x 1334px) -->
+  <!-- iPhone 8 Plus, 7 Plus, 6s Plus, 6 Plus (1242px x 2208px) -->
+  <!-- iPhone 5 (640px x 1136px) -->
+  <!-- iPad Mini, Air (1536px x 2048px) -->
+  <!-- iPad Pro 10.5" (1668px x 2224px) -->
+  <!-- iPad Pro 12.9" (2048px x 2732px) -->
+  
+  <!-- NO CACHE -->
+  <meta http-equiv="cache-control" content="max-age=0">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="-1">
+  <meta http-equiv="expires" content="Tue, 01 Jan 1980 11:00:00 GMT">
+  <meta http-equiv="pragma" content="no-cache">
+
+  <!-- VUE pwa config -->
+</head>
+
+<body>
+  <noscript>
+    <strong>We're sorry but application doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+  </noscript>
+  <script type=text/javascript> if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/service-worker.js')
+    .then(function(registration) { console.log('Registration successful, scope is:', registration.scope); })
+    .catch(function(error) { console.log('Service worker registration failed, error:', error); }); } 
+  </script> 
+  <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
 </html>
