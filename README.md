@@ -1,4 +1,4 @@
-# intania-db
+# chula-db
 
 ## Project setup
 ```
