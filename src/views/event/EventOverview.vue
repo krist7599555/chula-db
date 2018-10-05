@@ -10,9 +10,10 @@ div
           input.input.chula-nw(v-model='tableSearch' placeholder='Search...')
         div.control 
           button.button.is-link(disabled) {{sheetFilter.length}}
-      div
+      div(v-if='sheetFilter')
         b-table.is-size-7(
           :data="sheetFilter"
+          :colums="sheetColumns"
           :selected.sync="selected"
           :focusable='false'
           :paginated="isPaginated"
@@ -24,6 +25,10 @@ div
           :mobile-cards='false'
         )
           template(slot-scope="props")
+            b-table-column(field="stat" label="stat" sortable) 
+              button.button.is-info.is-loading(v-if='props.row.stat == "waiting"')
+              button.button.is-success(v-else-if='props.row.stat') OK
+              button.button.is-danger(v-else @click='updateUser(props.row)') NOPE
             template(v-for='atr in sheetColumn')
               b-table-column(:field="atr.field" :label="atr.label" sortable) 
                 | {{ props.row[atr.field] }}
@@ -42,7 +47,7 @@ export default {
       isPaginationSimple: false,
       defaultSortDirection: "asc",
       currentPage: 1,
-      perPage: 100,
+      perPage: 200,
       tableSearch: "",
       loading: true
     };
@@ -52,18 +57,68 @@ export default {
     this.sheet = await this.$store.getters.eventRecords(this.paramId);
     this.loading = false;
   },
+  methods: {
+    updateUser(usr) {
+      console.log(usr);
+      this.sheet = this.sheet.map(obj => {
+        if (obj.STUDENTCODE == usr.STUDENTCODE) obj.stat = "waiting";
+        return obj;
+      });
+      this.$forceUpdate();
+      // this.loading_list.push(usr.STUDENTCODE);
+      this.$store
+        .dispatch("checkIn", {
+          event: "graduation",
+          studentCode: usr.STUDENTCODE
+        })
+        .then(res => {
+          if (res.success) {
+            this.sheet = this.sheet.map(obj => {
+              if (obj.STUDENTCODE == usr.STUDENTCODE) obj.stat = "000000000";
+              return obj;
+            });
+          }
+          this.$forceUpdate();
+        });
+    }
+  },
   computed: {
     paramId() {
       return this.$route.params.id;
     },
     sheetFilter() {
+      console.log("recomputed sheetfilter");
       let regex = RegExp(this.tableSearch);
       return this.sheet.filter(obj =>
         _.some(_.values(obj), str => regex.test(str))
       );
+      // .map(val => {
+      //   if (this.loading_list.includes(val.STUDENTCODE)) {
+      //     val.stat = 'waiting';
+      //   }
+      //   return val;
+      // });
     },
     sheetColumn() {
-      let head = _.uniq(_.concat(..._.map(this.sheet, _.keys)));
+      let head = [
+        "STUDENTCODE",
+        "titleTH",
+        "nameTH",
+        "surnameTH",
+        "nicknameTH",
+        "faculty",
+        "gender",
+        "role",
+        "tel",
+        "stat",
+        "line",
+        "studentCode",
+        "dormitory",
+        "dormitoryBed",
+        "dormitoryBuilding",
+        "dormitoryRoom"
+      ];
+      // let head = _.uniq(_.concat(..._.map(this.sheet, _.keys)));
       return head.map(name => ({ field: name, label: name }));
     }
   }

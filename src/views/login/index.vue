@@ -4,7 +4,7 @@
       div.hero-body
         div(align='center')
           figure.image
-            img.logo(src='@/asset/engineer.png')
+            //- img.logo(src='@/asset/engineer.png')
           div.field: FacebookBtn
 </template>
 

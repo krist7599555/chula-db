@@ -4,15 +4,15 @@ div
   
 
   section.section.chula-nw(style='min-height: 95vh'): div(align='center')
-    div(v-if='loading')
-      SPINNER(
-        size='100'
-        :line-size='14'
-        line-fg-color='#fff'
-        line-bg-color='#fff3'
-      )
+    //- div(v-if='loading')
+    //-   SPINNER(
+    //-     size='100'
+    //-     :line-size='14'
+    //-     line-fg-color='#fff'
+    //-     line-bg-color='#fff3'
+    //-   )
 
-    div.box(v-else align='center' :style='boxStyle')
+    div.box(align='center' :style='boxStyle')
       div.columns.is-vcentered
 
         // QR CODE
@@ -78,7 +78,7 @@ export default class EventQR extends Vue {
   private event_status: string = "";
   async created() {
     this.event_status =
-      (await this.$store.getters.userEvent(this.paramId)).stat || "";
+      _.get(await this.$store.getters.userEvent(this.paramId), "stat") || "";
     setInterval(() => {
       let { innerWidth: w1, innerHeight: h1 } = window;
       let { clientWidth: w2, clientHeight: h2 } = document.documentElement;

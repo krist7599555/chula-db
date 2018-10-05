@@ -4,14 +4,15 @@ div
   div.section.bg.chula-nw(align='center')
 
     // COUNTDOWN & NOTIFICATION
-    div.box.hero.is-danger
-      div.field
-        Countdown.has-text-white(deadline="September 26, 2018")
+    div.box.hero.is-danger(v-if='warningList.length || (e && e.date && e.date.start)')
+      div.field(v-if='e && e.date && e.date.start')
+        Countdown.has-text-white(:deadline="e.date.start")
+      //- div {{e.date.start}}
       div(v-for='m in warningList') {{m}} 
     
 
     // HEAD
-    div.box
+    div.box(v-show='e.name')
       div.title {{e.name}}
       div.subtitle {{e.description}} <br> {{e.location}}
 
@@ -20,7 +21,14 @@ div
         BigLoginBtn
 
     template(v-else-if='loading')
-      SPINNER
+      div(style='margin: 2rem auto')
+        SPINNER(
+          size='100'
+          :line-size='14'
+          line-fg-color='#fff'
+          line-bg-color='#fff3'
+        )
+      
 
     template(v-else)
 
@@ -68,10 +76,15 @@ div
         span.is-size-3: i.fa.fa-paper-plane
         span.is-size-7(v-if='notiMessage')  {{notiMessage}} #[i.fa.fa-check]
 
-      // QR CODE
-      router-link.box.hero.is-primary(:to="`${paramId}/qr`")
-        span.is-size-5 QR code
-        span.is-size-3: i.fa.fa-qrcode
+    // QR CODE
+    router-link.box.hero.is-primary(:to="`${paramId}/qr`")
+      span.is-size-5 QR code
+      span.is-size-3: i.fa.fa-qrcode
+
+    router-link.box.hero.is-success(:to="`${paramId}/checkin`")
+      span.is-size-5 Self checkin
+      //- span.is-size-3: i.fa.fa-map-marked-alt
+      span.is-size-3: i.fa.fa-map-marker-alt
 
     // RECORDS
     router-link.box.hero.is-info(:to="`${paramId}/records`")
@@ -98,40 +111,56 @@ import Countdown from "@/components/CountDown.vue";
 import _ from "lodash";
 import { unregister } from "register-service-worker";
 import { Getter, Action } from "vuex-class";
+import { log } from "util";
+import { constants } from "http2";
+import { setInterval } from "timers";
 
 @Component({
   components: { Spinner, InputComp, GMapComp, BigLoginBtn, Countdown }
 })
 export default class Event extends Vue {
-  private e = require("@/other/dumpevent.json");
+  private e = {}; //require("@/other/dumpevent.json");
   private data: any = {};
   private isEdit: boolean = false;
-  private loading: boolean = false;
+  private loading: boolean = true;
   private isJoined: boolean = false;
   private frameLoaded: boolean = false;
   private formValidate: any = require("@/other/formValidate.json");
   private notiMessage: string = "";
   @Getter("isAuthenticated")
   isAuthenticated!: boolean;
+  private paramCount = 0;
 
   // CYCLE HOOK
   async created() {
-    this.loading = true;
+    let t = setTimeout(() => {
+      this.loading = false;
+      this.warningList.push("ขาดการเชื่อมต่อ");
+    }, 5000);
+    this.e = await this.$store.getters.eventFormat(this.paramId);
+    if (!this.e) {
+      this.$router.push(`/404?url=${this.$route.path}`);
+    }
     this.data = await this.$store.getters.userInfo;
     this.$forceUpdate();
     this.loading = false;
+    clearTimeout(t);
   }
-  async mounted() {}
 
-  // COMPUTED
+  // COMPUTE
   get paramId(): string {
+    if (this.paramCount != 0) window.location.reload(true);
+    this.paramCount++;
     return this.$route.params.id;
   }
   get validForm(): boolean {
     if (this.$refs && _.some(this.$refs.inputComp, (e: any) => e.error)) {
       return false;
     }
-    if (this.data && _.some(this.e.specialField || [], f => !this.data[f])) {
+    if (
+      this.data &&
+      _.some(_.get(this, "e.specialField") || [], f => !this.data[f])
+    ) {
       return false;
     }
     return true;
@@ -141,16 +170,15 @@ export default class Event extends Vue {
     let res = [];
     if (deviceNavInfo.includes("Line"))
       res.push("ไม่แนะนำให้เข้าระบบผ่าน line");
-    if (deviceNavInfo.includes("Mobile"))
-      res.push("ไม่แนะนำให้ให้ดำเนินการผ่านโทรศัพท์");
+    // if (deviceNavInfo.includes("Mobile"))
+    //   res.push("ไม่แนะนำให้ให้ดำเนินการผ่านโทรศัพท์");
     return res;
   }
 
   // METHOD
   async handleSubmit() {
     this.loading = true;
-    console.log("!!!");
-    let { require, specialField } = this.e;
+    let { require, specialField }: any = this.e;
     let submitField = _.concat(require, _.map(specialField, "name"));
     let submitObject = _.reduce(
       submitField,
@@ -161,7 +189,9 @@ export default class Event extends Vue {
       {}
     );
     try {
+      console.log("TRY dispatch UPDATE_USER", this.data);
       await this.$store.dispatch(UPDATE_USER, this.data);
+      console.log("TRY dispatch ADD_USER_TO_EVENT", submitObject);
       await this.$store.dispatch(ADD_USER_TO_EVENT, {
         event: this.paramId,
         data: submitObject
@@ -169,6 +199,7 @@ export default class Event extends Vue {
       this.notiMessage =
         "update Successful: " + new Date().toString().slice(4, 24);
     } catch (err) {
+      console.log("error", err);
       this.notiMessage = "update Fail: " + new Date().toString().slice(4, 24);
     }
     this.loading = false;
@@ -208,7 +239,12 @@ a.box {
   background-attachment: fixed;
   background-blend-mode: overlay;
   min-height: 100vh;
+
 }
+// .bg {
+//   background-image: linear-gradient(#209cee, #eeaaaa);
+//   background-blend-mode: unset;
+// }
 
 .field-label.is-normal {
   @media screen and (max-width: 768px) {

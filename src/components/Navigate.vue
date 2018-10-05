@@ -6,7 +6,7 @@
       //- img(src="https://bulma.io/images/bulma-logo-white.png" alt="Bulma: a modern CSS framework based on Flexbox" width="112" height="28")
       img(:src='require("../asset/logo-chula-sub-white-240x120.png")')
       div(style='margin-top: 1rem; margin-left: .3rem;') 
-        span.sub.is-size-7 0.2.4
+        span.sub.is-size-7 0.2.6
       //- img(:src='require("../asset/logo-chula-2018-white-535x120.png")')
       //- img(src="http://3mt.eng.chula.ac.th/img/cu-eng-logo.png" width="132" height="28")
     div.navbar-burger.burger(@click="navshow = !navshow" :class='navClass' )

@@ -7,6 +7,7 @@ import EventComp from "@/views/event/index.vue";
 import EventQR from "@/views/event/EventQR.vue";
 import EventMenu from "@/views/event/EventMenu.vue";
 import EventOverview from "@/views/event/EventOverview.vue";
+import EventSelfCheckIn from "@/views/event/EventSelfCheckIn.vue";
 import NotFoundComponent from "@/views/notFound/index.vue";
 import BarcodeScanner from "@/views/utility/BarcodeScanner.vue";
 import CheckIn from "@/views/checkin/index.vue";
@@ -85,6 +86,12 @@ const router = new Router({
       path: "/event/:id/qr",
       name: "eventQR",
       component: EventQR,
+      props: true
+    },
+    {
+      path: "/event/:id/checkin",
+      name: "EventSelfCheckIn",
+      component: EventSelfCheckIn,
       props: true
     },
     {

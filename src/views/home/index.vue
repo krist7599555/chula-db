@@ -43,7 +43,7 @@ export default class Home extends Vue {
 .bg {
   height: 100vh;
   background-size: cover;
-  background-image: url('../../asset/harrypotter/wall.crop.jpg');
+  // background-image: url('../../asset/harrypotter/wall.crop.jpg');
   // background-image: url(https://cdnb.artstation.com/p/assets/images/images/000/433/851/large/florent-llamas-poudlard.jpg?1422302855);
   background-blend-mode: luminosity;
   background-position: 15% 0%; 

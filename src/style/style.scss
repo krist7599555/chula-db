@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito:400,700');
 
 // Set your brand colors
+$green: #39d27d;
 $red: #fa5f7e;
 $purple: #9463d2;
 $pink: #FA7C91;
@@ -23,7 +24,7 @@ $beige-lighter: #EFF0EB;
 }
 
 $family-sans-serif: ChulaNew, "Nunito", sans-serif;
-// $success: $green-dark;
+$success: $green;
 $danger: $red;
 $warning: $yellow;
 $grey-dark: $brown;

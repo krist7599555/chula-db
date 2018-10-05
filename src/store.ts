@@ -51,20 +51,32 @@ const getters = {
     let snapshot = await db
       .doc(`events/${event}/records/${getters.studentCode(state)}`)
       // .collection("events")
-      // .doc(eventCode)
+      // .doc(event)
       // .collection("records")
       // .doc(state.getters.studentCode)
       .get();
     return snapshot.exists ? snapshot.data() : undefined;
   },
+  eventFormat: (state: any) => async (
+    event: string
+  ): Promise<object | undefined> => {
+    let res = (await db.doc(`events/${event}`).get()).data();
+    console.log("read event format", event, res);
+    return res && res.value;
+  },
   eventRecords: (state: any) => async (event: string) => {
     let d = await db
-      .collection(`events/${event}/records`)
-      // .collection("events")
-      // .doc(event)
-      // .collection("records")
+      // .collection(`events/${event}/records`)
+      .collection("events")
+      .doc(event)
+      .collection("records")
       .get();
-    return _.map(d.docs, _ => _.data());
+    return _.map(d.docs, usr => {
+      let id = usr.id;
+      let rs = usr.data();
+      rs["STUDENTCODE"] = id;
+      return rs;
+    });
   },
   deviceNavigateInfo(): string {
     return navigator.userAgent || navigator.vendor || "";
@@ -73,10 +85,8 @@ const getters = {
 
 const actions = {
   async setStudentCode(context: any) {
-    console.log("set student code");
     console.assert(context.getters.isAuthenticated);
     let user = context.state.userLog;
-    console.log("email" in user);
     let studentCode = await db
       .collection("authdata")
       .doc(user.email)
@@ -90,15 +100,24 @@ const actions = {
       }
     }
     if (!matchId.test(user.studentCode)) {
-      console.log("not matxh");
-      let ok = false;
+      console.log("not match");
       let uid1, uid2;
-      while (!ok) {
-        uid1 = prompt("10 digit student code") || "";
-        uid2 = prompt("10 digit student code again!") || "";
-        ok = uid1 == uid2 && !!matchId.test(uid1);
-        if (!ok) alert("student code is not match. please retyping");
-      }
+      do {
+        uid1 = prompt("[A] 10 digit student code") || "";
+        if (!matchId.test(uid1)) {
+          alert("student code is not valid");
+          continue;
+        }
+        uid2 = prompt("[B] please type again confirm your student code") || "";
+        if (uid1 != uid2) {
+          alert("student code [A] is not same as [B]. please try again");
+          continue;
+        } else {
+          alert("ok");
+          break;
+        }
+      } while (!matchId.test(uid1) || uid1 != uid2);
+
       user.studentCode = uid1;
       await db
         .collection("authdata")
@@ -124,41 +143,30 @@ const actions = {
       await context.dispatch("setStudentCode");
     }
     let studentCode = context.getters.userLog.studentCode;
-    let userInfo = await db
-      .doc(`records/${studentCode}`)
-      // .collection("records")
-      // .doc(studentCode)
-      .get();
+    let userInfo = await db.doc(`records/${studentCode}`).get();
     let data = userInfo.data();
     context.commit(SET_USER_INFO, data);
+    window.location.reload(true);
   },
-  async [LOGOUT](context: any): Promise<void> {
+  async [LOGOUT](context: any) {
     await auth()
       .signOut()
       .then(() => {
         context.commit(PURGE_AUTH);
       });
   },
-  async [UPDATE_USER](context: any, newuserInfo: object): Promise<void> {
-    console.log('UPDATE_USER', (await db.doc(`records/${context.getters.studentCode}`).get()));
+  async [UPDATE_USER](context: any, newuserInfo: object) {
     return db
       .doc(`records/${context.getters.studentCode}`)
-      // .collection("records")
-      // .doc(context.getters.studentCode)
-      .set(newuserInfo, { merge: true })
+      .set(newuserInfo)
       .then(() => {
         return context.commit(SET_USER_INFO, newuserInfo);
-      })
+      });
   },
   async [ADD_USER_TO_EVENT](context: any, { event, data }: any): Promise<void> {
     let docRef = await db.doc(
       `events/${event}/records/${context.getters.studentCode}`
     );
-    // .collection("events")
-    // .doc(event)
-    // .collection("records")
-    // .doc(context.getters.studentCode);
-    console.log('add user to event')
     await docRef.set(data, { merge: true });
   },
   async [REMOVE_USER_FROM_EVENT](context: any, event: string) {
@@ -166,10 +174,6 @@ const actions = {
     let docRef = await db.doc(
       `events/${event}/records/${context.getters.studentCode}`
     );
-    // .collection("events")
-    // .doc(event)
-    // .collection("records")
-    // .doc(context.getters.studentCode);
     return docRef.delete().then(() => {
       alert("delete event success");
     });
@@ -178,11 +182,12 @@ const actions = {
     console.assert(context.getters.isAuthenticated);
     console.assert(event && studentCode);
     let me_code = context.getters.studentCode;
-    let me_ref = await db.doc(`events/${event}/records/${me_code}`);
-    // .collection("events")
-    // .doc(event)
-    // .collection("records")
-    // .doc(me_code);
+    let me_ref = await db
+      // .doc(`events/${event}/records/${me_code}`);
+      .collection("events")
+      .doc(event)
+      .collection("records")
+      .doc(me_code);
     let me = (await me_ref.get()).data() || {};
     if (me.stat != "checker") {
       return {
@@ -190,11 +195,12 @@ const actions = {
         message: `${me_code}\npermission denied`
       };
     }
-    let ref = await db.doc(`events/${event}/records/${studentCode}`);
-    // .collection("events")
-    // .doc(event)
-    // .collection("records")
-    // .doc(studentCode);
+    let ref = await db
+      // .doc(`events/${event}/records/${studentCode}`);
+      .collection("events")
+      .doc(event)
+      .collection("records")
+      .doc(studentCode);
     let data = (await ref.get()).data() || {};
     console.log("her data data:", data);
     console.log("her data stat:", data.stat);
