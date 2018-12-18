@@ -11,6 +11,7 @@ import EventSelfCheckIn from "@/views/event/EventSelfCheckIn.vue";
 import NotFoundComponent from "@/views/notFound/index.vue";
 import BarcodeScanner from "@/views/utility/BarcodeScanner.vue";
 import CheckIn from "@/views/checkin/index.vue";
+import Authentication from '@/views/auth/index.vue';
 
 Vue.use(Router);
 import $store from "@/store";
@@ -119,6 +120,11 @@ const router = new Router({
       path: "/checkin",
       name: "CheckIn",
       component: CheckIn
+    },
+    {
+      path: "/auth",
+      name: "Authentication",
+      component: Authentication
     }
   ]
 });
